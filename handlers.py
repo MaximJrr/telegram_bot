@@ -1,15 +1,14 @@
-import telebot
-from telebot.types import Message
+from aiogram import Bot, Dispatcher, executor, types
 from config import TOKEN_API
 
-bot = telebot.TeleBot(TOKEN_API)
+bot = Bot(TOKEN_API)
+dp = Dispatcher(bot)
 
 
-@bot.message_handler(commands=['start'])
-def start_command(message: Message):
-    bot.send_message(message.chat.id, text='Здравствуйте! Напишите название блюда, которое хотели бы найти')
-    bot.delete_message(message.chat.id, message.id)
-
+@dp.message_handler(commands=['start'])
+async def start_command(message: types.Message):
+    await message.answer(text='Здравствуйте! Напишите название блюда, которое хотели бы найти')
+    await message.delete()
 
 if __name__ == '__main__':
-    bot.polling()
+    executor.start_polling(dp)
