@@ -8,6 +8,11 @@ from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 bot = Bot(TOKEN_API)
 dp = Dispatcher(bot)
 
+headers = {
+    'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
+    'user-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36'
+}
+
 
 @dp.message_handler(commands=['start'])
 async def start_command(message: types.Message):
@@ -17,8 +22,9 @@ async def start_command(message: types.Message):
 
 @dp.message_handler(content_types=['text'])
 async def parser_dishes(message: types.Message):
+
     url = "https://povar.ru/xmlsearch?query=" + message.text
-    request = requests.get(url)
+    request = requests.get(url, headers=headers)
     soup = BeautifulSoup(request.text, "html.parser")
     links = soup.find_all('div', class_='recipe')
 
@@ -46,7 +52,7 @@ async def get_recipe_details(callback_query: types.CallbackQuery):
     recipe_id = callback_query.data.split(":")[1]
     recipe_url = f"https://povar.ru/recipes/picca_v_domashnih_usloviyah_v_duhovke-{recipe_id}.html"
 
-    recipe_request = requests.get(recipe_url)
+    recipe_request = requests.get(recipe_url, headers=headers)
     recipe_soup = BeautifulSoup(recipe_request.text, "html.parser")
 
     description = recipe_soup.find(
