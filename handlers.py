@@ -1,17 +1,12 @@
 import requests
 from aiogram import Bot, Dispatcher, executor, types
-from config import TOKEN_API
+from config import TOKEN_API, headers
 from bs4 import BeautifulSoup
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 
 bot = Bot(TOKEN_API)
 dp = Dispatcher(bot)
-
-headers = {
-    'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
-    'user-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36'
-}
 
 
 @dp.message_handler(commands=['start'])
@@ -58,7 +53,26 @@ async def get_recipe_details(callback_query: types.CallbackQuery):
     description = recipe_soup.find(
         'span', class_='detailed_full description').find_next('br').find_next_sibling('span').text.strip()
 
-    await bot.send_message(callback_query.from_user.id, description)
+    ingredients_list = []
+    ingredients_ul = recipe_soup.find('ul', class_='detailed_ingredients no_dots')
+    if ingredients_ul:
+        for li in ingredients_ul.find_all('li', itemprop='recipeIngredient'):
+            ingredient_name = li.find('span', class_='name').text.strip()
+            ingredient_value = li.find('span', class_='value')
+            ingredient_unit = li.find('span', class_='u-unit-name').text.strip()
+
+            if ingredient_value:
+                ingredient_value_text = ingredient_value.text.strip()
+            else:
+                ingredient_value_text = ""
+
+            ingredient = f"{ingredient_name}: {ingredient_value_text} {ingredient_unit}"
+            ingredients_list.append(ingredient)
+
+        ingredients_text = "\n".join(ingredients_list)
+
+        await bot.send_message(callback_query.from_user.id, description, ingredients_text)
+
 
 if __name__ == '__main__':
     executor.start_polling(dp)
