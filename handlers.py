@@ -44,14 +44,18 @@ async def parser_dishes(message: types.Message):
 
 @dp.callback_query_handler(lambda query: query.data.startswith("recipe:"))
 async def get_recipe_details(callback_query: types.CallbackQuery):
+    global ingredients_text
     recipe_id = callback_query.data.split(":")[1]
     recipe_url = f"https://povar.ru/recipes/picca_v_domashnih_usloviyah_v_duhovke-{recipe_id}.html"
 
     recipe_request = requests.get(recipe_url, headers=headers)
     recipe_soup = BeautifulSoup(recipe_request.text, "html.parser")
+    how_to_cooke = recipe_soup.find_all('h2', class_='span')[2].text
+    recipe = recipe_soup.find('div', class_='instructions').find_all('div', class_='detailed_step_description_big')
+    recipes = ''
 
-    description = recipe_soup.find(
-        'span', class_='detailed_full description').find_next('br').find_next_sibling('span').text.strip()
+    for index, r in enumerate(recipe, start=1):
+        recipes += f"• {r.text}\n\n"
 
     ingredients_list = []
     ingredients_ul = recipe_soup.find('ul', class_='detailed_ingredients no_dots')
@@ -71,7 +75,9 @@ async def get_recipe_details(callback_query: types.CallbackQuery):
 
         ingredients_text = "\n".join(ingredients_list)
 
-        await bot.send_message(callback_query.from_user.id, description, ingredients_text)
+    message_text = f"\n\n<b>Состав/Ингридиенты: 🍎</b>\n\n<i>{ingredients_text}</i>\n<b>\n{how_to_cooke} 🍽</b>\n\n<i>{recipes}</i>"
+
+    await bot.send_message(callback_query.from_user.id, message_text, parse_mode='html')
 
 
 if __name__ == '__main__':
