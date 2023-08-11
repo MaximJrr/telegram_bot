@@ -17,39 +17,42 @@ async def start_command(message: types.Message):
 
 @dp.message_handler(content_types=['text'])
 async def parser_dishes(message: types.Message):
+    for page in range(1, 6):
+        url = f"https://povar.ru/xmlsearch?query={message.text}&page={page}"
+        request = requests.get(url, headers=headers)
+        soup = BeautifulSoup(request.text, "html.parser")
+        links = soup.find_all('div', class_='recipe')
+        dishes_found = False
 
-    url = f"https://povar.ru/xmlsearch?query={message.text}"
-    request = requests.get(url, headers=headers)
-    soup = BeautifulSoup(request.text, "html.parser")
-    links = soup.find_all('div', class_='recipe')
-    dishes_found = False
+        for link in links:
+            recipe_id = link.find(
+                'div', class_='h3').find('a', class_='listRecipieTitle').get('href').split("-")[-1].split(".")[0]
 
-    for link in links:
-        recipe_id = link.find('div', class_='h3').find('a', class_='listRecipieTitle').get('href').split("-")[-1].split(".")[0]
+            inline_button = InlineKeyboardButton("Посмотреть подробнее", callback_data=f"recipe:{recipe_id}")
+            inline_markup = InlineKeyboardMarkup().add(inline_button)
 
-        inline_button = InlineKeyboardButton("Посмотреть подробнее", callback_data=f"recipe:{recipe_id}")
-        inline_markup = InlineKeyboardMarkup().add(inline_button)
+            name = link.find('div', class_='h3').find('a', class_='listRecipieTitle').text
+            description = link.find('p', class_='txt').text
+            image = link.find('span', class_='a thumb hashString').find('img').get('src')
+            dishes_found = True
 
-        name = link.find('div', class_='h3').find('a', class_='listRecipieTitle').text
-        description = link.find('p', class_='txt').text
-        image = link.find('span', class_='a thumb hashString').find('img').get('src')
-        dishes_found = True
-
-        await bot.send_photo(
-            message.chat.id,
-            image,
-            f"*{name}*\n_{description}_",
-            reply_markup=inline_markup,
-            parse_mode='markdown'
-        )
+            await bot.send_photo(
+                message.chat.id,
+                image,
+                f"*{name}*\n_{description}_",
+                reply_markup=inline_markup,
+                parse_mode='markdown'
+            )
 
     if not dishes_found:
-        await bot.send_message(message.chat.id, "К сожалению, блюдо не найдено 😢")
+        await bot.send_message(
+            message.chat.id, f"К сожалению, блюдо <b>'{message.text}'</b> не найдено 😢", parse_mode='html'
+        )
+        await message.delete()
 
 
 @dp.callback_query_handler(lambda query: query.data.startswith("recipe:"))
 async def get_recipe_details(callback_query: types.CallbackQuery):
-    global ingredients_text
     recipe_id = callback_query.data.split(":")[1]
     recipe_url = f"https://povar.ru/recipes/picca_v_domashnih_usloviyah_v_duhovke-{recipe_id}.html"
 
@@ -88,13 +91,20 @@ async def get_recipe_details(callback_query: types.CallbackQuery):
 
         ingredients_text = "\n".join(ingredients_list)
 
-    message_text = f"\n\n<b>Состав/Ингридиенты: 🍎</b>\n\n<i>{ingredients_text}</i>\n<b>\n{how_to_cooke[0].text} 🍽</b>\n\n<i>{recipes}</i>"
-    message_text_2 = f"\n\n<b>Состав/Ингридиенты: 🍎</b>\n\n<i>{ingredients_text}</i>\n\n<b>Описание приготовления: 🍽</b>\n\n{description}"
+    message_text = (
+        f"\n\n<b>Состав/Ингридиенты: 🍎</b>\n\n"
+        f"<i>{ingredients_text}</i>\n"
+        f"<b>\n{how_to_cooke[0].text} 🍽</b>\n\n"
+        f"<i>{recipes}</i>")
+
+    message_text_2 = (
+        f"\n\n<b>Состав/Ингридиенты: 🍎</b>\n\n"
+        f"<i>{ingredients_text}</i>\n\n"
+        f"<b>Описание приготовления: 🍽</b>\n\n{description}")
 
     if len(how_to_cooke) > 2:
         await bot.send_message(callback_query.from_user.id, message_text, parse_mode='html')
-    elif len(how_to_cooke) == 2:
-        await bot.send_message(callback_query.from_user.id, message_text_2, parse_mode='html')
+    await bot.send_message(callback_query.from_user.id, message_text_2, parse_mode='html')
 
 if __name__ == '__main__':
     executor.start_polling(dp)
