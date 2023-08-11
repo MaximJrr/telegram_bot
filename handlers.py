@@ -22,6 +22,7 @@ async def parser_dishes(message: types.Message):
     request = requests.get(url, headers=headers)
     soup = BeautifulSoup(request.text, "html.parser")
     links = soup.find_all('div', class_='recipe')
+    dishes_found = False
 
     for link in links:
         recipe_id = link.find('div', class_='h3').find('a', class_='listRecipieTitle').get('href').split("-")[-1].split(".")[0]
@@ -32,6 +33,7 @@ async def parser_dishes(message: types.Message):
         name = link.find('div', class_='h3').find('a', class_='listRecipieTitle').text
         description = link.find('p', class_='txt').text
         image = link.find('span', class_='a thumb hashString').find('img').get('src')
+        dishes_found = True
 
         await bot.send_photo(
             message.chat.id,
@@ -40,6 +42,9 @@ async def parser_dishes(message: types.Message):
             reply_markup=inline_markup,
             parse_mode='markdown'
         )
+
+    if not dishes_found:
+        await bot.send_message(message.chat.id, "К сожалению, блюдо не найдено 😢")
 
 
 @dp.callback_query_handler(lambda query: query.data.startswith("recipe:"))
