@@ -18,7 +18,7 @@ async def start_command(message: types.Message):
 @dp.message_handler(content_types=['text'])
 async def parser_dishes(message: types.Message):
 
-    url = "https://povar.ru/xmlsearch?query=" + message.text
+    url = f"https://povar.ru/xmlsearch?query={message.text}"
     request = requests.get(url, headers=headers)
     soup = BeautifulSoup(request.text, "html.parser")
     links = soup.find_all('div', class_='recipe')
@@ -50,15 +50,23 @@ async def get_recipe_details(callback_query: types.CallbackQuery):
 
     recipe_request = requests.get(recipe_url, headers=headers)
     recipe_soup = BeautifulSoup(recipe_request.text, "html.parser")
-    how_to_cooke = recipe_soup.find_all('h2', class_='span')[2].text
-    recipe = recipe_soup.find('div', class_='instructions').find_all('div', class_='detailed_step_description_big')
-    recipes = ''
-
-    for index, r in enumerate(recipe, start=1):
-        recipes += f"• {r.text}\n\n"
-
-    ingredients_list = []
+    how_to_cooke = recipe_soup.find_all('h2', class_='span')
+    desc = recipe_soup.find('span', itemprop='recipeInstructions')
+    recipe = recipe_soup.find('div', class_='instructions')
     ingredients_ul = recipe_soup.find('ul', class_='detailed_ingredients no_dots')
+    description = ''
+    recipes = ''
+    ingredients_list = []
+
+    if desc:
+        for d in desc:
+            description += f"{d.text}\n"
+
+    if recipe:
+        recipe = recipe.find_all('div', class_='detailed_step_description_big')
+        for r in recipe:
+            recipes += f"• {r.text}\n\n"
+
     if ingredients_ul:
         for li in ingredients_ul.find_all('li', itemprop='recipeIngredient'):
             ingredient_name = li.find('span', class_='name').text.strip()
@@ -75,10 +83,13 @@ async def get_recipe_details(callback_query: types.CallbackQuery):
 
         ingredients_text = "\n".join(ingredients_list)
 
-    message_text = f"\n\n<b>Состав/Ингридиенты: 🍎</b>\n\n<i>{ingredients_text}</i>\n<b>\n{how_to_cooke} 🍽</b>\n\n<i>{recipes}</i>"
+    message_text = f"\n\n<b>Состав/Ингридиенты: 🍎</b>\n\n<i>{ingredients_text}</i>\n<b>\n{how_to_cooke[0].text} 🍽</b>\n\n<i>{recipes}</i>"
+    message_text_2 = f"\n\n<b>Состав/Ингридиенты: 🍎</b>\n\n<i>{ingredients_text}</i>\n\n<b>Описание приготовления: 🍽</b>\n\n{description}"
 
-    await bot.send_message(callback_query.from_user.id, message_text, parse_mode='html')
-
+    if len(how_to_cooke) > 2:
+        await bot.send_message(callback_query.from_user.id, message_text, parse_mode='html')
+    elif len(how_to_cooke) == 2:
+        await bot.send_message(callback_query.from_user.id, message_text_2, parse_mode='html')
 
 if __name__ == '__main__':
     executor.start_polling(dp)
