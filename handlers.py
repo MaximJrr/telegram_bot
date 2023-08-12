@@ -9,6 +9,10 @@ bot = Bot(TOKEN_API)
 dp = Dispatcher(bot)
 
 
+async def on_startup(_):
+    print("Bot started")
+
+
 @dp.message_handler(commands=['start'])
 async def start_command(message: types.Message):
     await message.answer(text='Здравствуйте! Напишите название блюда, которое хотели бы найти')
@@ -36,13 +40,16 @@ async def parser_dishes(message: types.Message):
             image = link.find('span', class_='a thumb hashString').find('img').get('src')
             dishes_found = True
 
-            await bot.send_photo(
-                message.chat.id,
-                image,
-                f"*{name}*\n_{description}_",
-                reply_markup=inline_markup,
-                parse_mode='markdown'
-            )
+            if len(link) == 2:
+                break
+            else:
+                await bot.send_photo(
+                    message.chat.id,
+                    image,
+                    f"*{name}*\n_{description}_",
+                    reply_markup=inline_markup,
+                    parse_mode='markdown'
+                )
 
     if not dishes_found:
         await bot.send_message(
@@ -99,7 +106,7 @@ async def get_recipe_details(callback_query: types.CallbackQuery):
 
     message_text_2 = (
         f"\n\n<b>Состав/Ингридиенты: 🍎</b>\n\n"
-        f"<i>{ingredients_text}</i>\n\n"
+        f"{ingredients_text}\n\n"
         f"<b>Описание приготовления: 🍽</b>\n\n{description}")
 
     if len(how_to_cooke) > 2:
@@ -107,4 +114,4 @@ async def get_recipe_details(callback_query: types.CallbackQuery):
     await bot.send_message(callback_query.from_user.id, message_text_2, parse_mode='html')
 
 if __name__ == '__main__':
-    executor.start_polling(dp)
+    executor.start_polling(dp, skip_updates=True, on_startup=on_startup)
