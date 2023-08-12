@@ -111,7 +111,8 @@ async def get_recipe_details(callback_query: types.CallbackQuery):
 
     if len(how_to_cooke) > 2:
         await bot.send_message(callback_query.from_user.id, message_text, parse_mode='html')
-    await bot.send_message(callback_query.from_user.id, message_text_2, parse_mode='html')
+    else:
+        await bot.send_message(callback_query.from_user.id, message_text_2, parse_mode='html')
 
 if __name__ == '__main__':
     executor.start_polling(dp, skip_updates=True, on_startup=on_startup)
