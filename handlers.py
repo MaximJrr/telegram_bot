@@ -1,12 +1,14 @@
 import requests
 from aiogram import Bot, Dispatcher, executor, types
-from config import TOKEN_API, headers
+from config import headers
 from bs4 import BeautifulSoup
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+from dotenv import load_dotenv
+import os
 
-
-bot = Bot(TOKEN_API)
-dp = Dispatcher(bot)
+load_dotenv()
+bot = Bot(os.getenv('TOKEN'))
+dp = Dispatcher(bot=bot)
 
 
 async def on_startup(_):
@@ -40,20 +42,17 @@ async def parser_dishes(message: types.Message):
             image = link.find('span', class_='a thumb hashString').find('img').get('src')
             dishes_found = True
 
-            if len(link) == 2:
-                break
-            else:
-                await bot.send_photo(
-                    message.chat.id,
-                    image,
-                    f"*{name}*\n_{description}_",
-                    reply_markup=inline_markup,
-                    parse_mode='markdown'
-                )
+            await bot.send_photo(
+                message.chat.id,
+                image,
+                f"*{name}*\n_{description}_",
+                reply_markup=inline_markup,
+                parse_mode='markdown'
+            )
 
     if not dishes_found:
         await bot.send_message(
-            message.chat.id, f"К сожалению, блюдо <b>'{message.text}'</b> не найдено 😢", parse_mode='html'
+            message.chat.id, f"К сожалению, блюдо <b>{message.text}</b> не найдено 😢", parse_mode='html'
         )
         await message.delete()
 
