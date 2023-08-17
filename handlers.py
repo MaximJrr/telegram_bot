@@ -5,6 +5,7 @@ from bs4 import BeautifulSoup
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from dotenv import load_dotenv
 import os
+from parsers import parse_category_dishes
 
 load_dotenv()
 bot = Bot(os.getenv('TOKEN'))
@@ -17,13 +18,22 @@ async def on_startup(_):
 
 @dp.message_handler(commands=['start'])
 async def start_command(message: types.Message):
-    await message.answer(text='Здравствуйте! Напишите название блюда, которое хотели бы найти')
+    await message.answer(text="Здравствуйте! Напишите название блюда, которое хотели бы найти")
     await message.delete()
+
+
+@dp.message_handler(commands=['menu'])
+async def helper(message: types.Message):
+    category_keyboard = InlineKeyboardMarkup()
+
+    for category in parse_category_dishes():
+        category_keyboard.add(InlineKeyboardButton(text=category, callback_data=f'category:{category}'))
+    await message.answer("Выберите категорию блюд:", reply_markup=category_keyboard)
 
 
 @dp.message_handler(content_types=['text'])
 async def parser_dishes(message: types.Message):
-    for page in range(1, 6):
+    for page in range(1, 3):
         url = f"https://povar.ru/xmlsearch?query={message.text}&page={page}"
         request = requests.get(url, headers=headers)
         soup = BeautifulSoup(request.text, "html.parser")
@@ -112,6 +122,37 @@ async def get_recipe_details(callback_query: types.CallbackQuery):
         await bot.send_message(callback_query.from_user.id, message_text, parse_mode='html')
     else:
         await bot.send_message(callback_query.from_user.id, message_text_2, parse_mode='html')
+
+
+@dp.callback_query_handler(lambda query: query.data.startswith("category:"))
+async def show_dishes_for_category(callback_query: types.CallbackQuery):
+    selected_category = callback_query.data.split(":")[1]
+
+    category_dishes = parse_category_dishes().get(selected_category, [])
+
+    dishes_keyboard = InlineKeyboardMarkup()
+
+    for dish in category_dishes:
+        dishes_keyboard.add(InlineKeyboardButton(text=dish, callback_data=f'dish:{dish}'))
+
+    await bot.edit_message_text(
+        chat_id=callback_query.message.chat.id,
+        message_id=callback_query.message.message_id,
+        text=f"Выберите блюдо из категории:",
+        reply_markup=dishes_keyboard
+    )
+
+
+@dp.callback_query_handler(lambda query: query.data.startswith("dish:"))
+async def send_dish_to_chat(callback_query: types.CallbackQuery):
+    selected_dish = callback_query.data.split(":")[1]
+
+    await bot.send_message(
+        chat_id=callback_query.from_user.id,
+        text=selected_dish
+    )
+    await parser_dishes(types.Message(text=selected_dish, chat=callback_query.message.chat))
+
 
 if __name__ == '__main__':
     executor.start_polling(dp, skip_updates=True, on_startup=on_startup)
