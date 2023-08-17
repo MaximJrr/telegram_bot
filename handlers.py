@@ -18,7 +18,8 @@ async def on_startup(_):
 
 @dp.message_handler(commands=['start'])
 async def start_command(message: types.Message):
-    await message.answer(text="Здравствуйте! Напишите название блюда, которое хотели бы найти")
+    await message.answer(text=f"Здравствуйте, {message.from_user.first_name}! Напишите название блюда, которое хотели"
+                              f" бы найти, или вызовите комманду /menu для открытия категорий")
     await message.delete()
 
 
@@ -29,6 +30,7 @@ async def helper(message: types.Message):
     for category in parse_category_dishes():
         category_keyboard.add(InlineKeyboardButton(text=category, callback_data=f'category:{category}'))
     await message.answer("Выберите категорию блюд:", reply_markup=category_keyboard)
+    await message.delete()
 
 
 @dp.message_handler(content_types=['text'])
