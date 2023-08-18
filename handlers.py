@@ -24,7 +24,7 @@ async def start_command(message: types.Message):
 
 
 @dp.message_handler(commands=['menu'])
-async def helper(message: types.Message):
+async def menu_command(message: types.Message):
     category_keyboard = InlineKeyboardMarkup()
 
     for category in parse_category_dishes():
@@ -132,7 +132,7 @@ async def show_dishes_for_category(callback_query: types.CallbackQuery):
 
     category_dishes = parse_category_dishes().get(selected_category, [])
 
-    dishes_keyboard = InlineKeyboardMarkup()
+    dishes_keyboard = InlineKeyboardMarkup(row_width=2)
 
     for dish in category_dishes:
         dishes_keyboard.add(InlineKeyboardButton(text=dish, callback_data=f'dish:{dish}'))
