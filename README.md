@@ -45,4 +45,7 @@ or
 3. Choose a category of dishes from the suggested options.
 4. Get a list of dishes of the selected category and select the one you are interested in.
 
-<img src="images/yHncHhZ0_3Y.jpg" alt="Пример изображения" width="300" height="500"> <img src="images/yHncHhZ0_3Y.jpg" alt="Пример изображения" width="300" height="500">  
+<img src="images/yHncHhZ0_3Y.jpg" alt="Пример изображения" width="300" height="700"> <img src="images/YUvIZXprmMQ.jpg" alt="Пример изображения" width="300" height="700">
+<img src="images/NK0mTDBvxoA.jpg" alt="Пример изображения" width="300" height="700"> <img src="images/WYkYESQuhOE.jpg" alt="Пример изображения" width="300" height="700">
+<img src="images/UjclafPAdUY.jpg" alt="Пример изображения" width="300" height="700"> <img src="images/fvy82uk11Ro.jpg" alt="Пример изображения" width="300" height="700">
+<img src="images/5ixtq0CzeWQ.jpg" alt="Пример изображения" width="300" height="700">
