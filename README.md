@@ -45,10 +45,4 @@ or
 3. Choose a category of dishes from the suggested options.
 4. Get a list of dishes of the selected category and select the one you are interested in.
 
-![yHncHhZ0_3Y.jpg](yHncHhZ0_3Y.jpg)
-![YUvIZXprmMQ.jpg](YUvIZXprmMQ.jpg)
-![NK0mTDBvxoA.jpg](NK0mTDBvxoA.jpg)
-![WYkYESQuhOE.jpg](WYkYESQuhOE.jpg)
-![UjclafPAdUY.jpg](UjclafPAdUY.jpg)
-![fvy82uk11Ro.jpg](fvy82uk11Ro.jpg)
-![5ixtq0CzeWQ.jpg](5ixtq0CzeWQ.jpg)
+<img src="images/yHncHhZ0_3Y.jpg" alt="Пример изображения" width="300" height="500"> <img src="images/yHncHhZ0_3Y.jpg" alt="Пример изображения" width="300" height="500">  
