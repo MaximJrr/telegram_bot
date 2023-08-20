@@ -44,3 +44,11 @@ or
 2. Enter the name of the dish you want to find, or call the /menu command to view the categories of dishes.
 3. Choose a category of dishes from the suggested options.
 4. Get a list of dishes of the selected category and select the one you are interested in.
+
+![yHncHhZ0_3Y.jpg](yHncHhZ0_3Y.jpg)
+![YUvIZXprmMQ.jpg](YUvIZXprmMQ.jpg)
+![NK0mTDBvxoA.jpg](NK0mTDBvxoA.jpg)
+![WYkYESQuhOE.jpg](WYkYESQuhOE.jpg)
+![UjclafPAdUY.jpg](UjclafPAdUY.jpg)
+![fvy82uk11Ro.jpg](fvy82uk11Ro.jpg)
+![5ixtq0CzeWQ.jpg](5ixtq0CzeWQ.jpg)
