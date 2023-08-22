@@ -3,7 +3,7 @@
 ___
 ### This Telegram bot allows users to search and get recipes for dishes. The bot uses the aiogram library to interact with the Telegram API and BeautifulSoup for data parsing
 
-## Tools:
+## *Tools*:
 *Python 3.11*
 
 *Aiogram library*
