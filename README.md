@@ -44,7 +44,7 @@ If you want to run the bot using Docker, make sure you have Docker and Docker Co
 docker-compose build
 docker-compose up
 ```
-or
+*or*
 
 ```docker-compose up --build```
 
