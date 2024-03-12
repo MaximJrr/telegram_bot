@@ -1,0 +1,5 @@
+.idea
+.env
+bot/config.py
+venv
+__pycache__/
